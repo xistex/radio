@@ -1,0 +1,36 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Generate APK
+        run: |
+          # Inicializa o projeto Bubblewrap usando seu manifest.json
+          bubblewrap init --manifest=./manifest.json --directory=twa-project --skipPwaValidation --force
+
+          cd twa-project
+          bubblewrap build
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: medstudy-apk
+          path: twa-project/build/app-release-signed.apk
